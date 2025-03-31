@@ -104,13 +104,13 @@ auto_interaction_v2() {
     echo "Which node do you want to run? (e.g., node6, node7)"
     read -p "Enter node name: " node_name
     foldername="${node_name//[^0-9]/}"  # Extract number from node name (e.g., node6 -> 6)
-    node_dir="/root/autochatmine/$foldername/"
+    node_dir="/root/autochatmine/"
     repo_dir="$node_dir/gaianodemain"
     log_file="/root/interaction${foldername}_v2.log"
-    pid_file="/root/interaction${foldername}_v2.pid"
+    pid_file="$node_dir/interaction_v2.pid"
 
     if [ ! -d "$node_dir" ]; then
-        echo "Creating directory for node: $node_dir"
+        echo "Creating autochatmine directory: $node_dir"
         mkdir -p "$node_dir"
     fi
 
@@ -130,15 +130,19 @@ auto_interaction_v2() {
         return
     fi
 
-    # Create virtual environment if missing
-    if [ ! -d "$repo_dir/env" ]; then
+    # Create a single virtual environment in autochatmine/
+    if [ ! -d "$node_dir/env" ]; then
         echo "Creating Python virtual environment..."
-        python3 -m venv "$repo_dir/env"
+        python3 -m venv "$node_dir/env"
     fi
-    source "$repo_dir/env/bin/activate"
+
+    # Activate the virtual environment
+    source "$node_dir/env/bin/activate"
 
     echo "Installing dependencies..."
+    pip install --upgrade pip
     pip install -r "$repo_dir/requirements.txt"
+    pip install python-dotenv
     deactivate
 
     echo "Starting the Python script with nohup..."
