@@ -21,39 +21,49 @@ show_menu() {
     echo "=============================="
 }
 
-# Function to run Auto Interaction V2 with node selection
+# Function to install GaiaNet Node
+install_node() {
+    echo "Installing GaiaNet Node..."
+    curl -sSfL 'https://github.com/GaiaNet-AI/gaianet-node/releases/latest/download/install.sh' | bash
+    source "$HOME/.bashrc"
+}
+
+# Function for Auto Interaction with Your Node [V2] with Node Selection
 auto_interaction_v2() {
     echo "Which node do you want to run? (e.g., node2, node3)"
     read -p "Enter node name: " node_name
-    local node_dir="/root/gaianode/$node_name"
-    local script_path="$node_dir/main.py"
-    local log_file="$node_dir/interaction_v2.log"
-    local pid_file="$node_dir/interaction_v2.pid"
-    local req_file="$node_dir/requirements.txt"
+    node_dir="/root/gaianode/$node_name"
+    log_file="$node_dir/interaction_v2.log"
+    pid_file="$node_dir/interaction_v2.pid"
+    script_path="$node_dir/main.py"
+
+    if [ ! -d "$node_dir" ]; then
+        echo "Error: Node directory $node_dir does not exist."
+        return
+    fi
 
     if [ ! -f "$script_path" ]; then
         echo "Error: Python script not found at $script_path"
         return
     fi
 
-    # Ensure requirements.txt exists in node directory, otherwise copy it
-    if [ ! -f "$req_file" ]; then
-        echo "Warning: requirements.txt not found in $node_dir. Checking in main repo..."
-        if [ -f "$HOME/gaianodemain/requirements.txt" ]; then
-            cp "$HOME/gaianodemain/requirements.txt" "$req_file"
-            echo "Copied missing requirements.txt to $node_dir."
-        else
-            echo "Error: requirements.txt not found in main repo. Skipping dependency installation."
-        fi
+    # Ensure requirements.txt is copied if missing
+    if [ ! -f "$node_dir/requirements.txt" ]; then
+        echo "Warning: requirements.txt not found in $node_dir. Copying from repo..."
+        cp ~/gaianodemain/requirements.txt "$node_dir/"
     fi
 
-    # Install dependencies
-    if [ -f "$req_file" ]; then
-        echo "Installing required Python packages..."
-        pip install -r "$req_file" --break-system-packages
+    # Activate virtual environment or create if missing
+    if [ ! -d "$node_dir/env" ]; then
+        echo "Creating Python virtual environment..."
+        python3 -m venv "$node_dir/env"
     fi
+    source "$node_dir/env/bin/activate"
 
-    # Start script
+    echo "Installing dependencies..."
+    pip install -r "$node_dir/requirements.txt"
+    deactivate
+
     echo "Starting the Python script with nohup..."
     nohup python3 "$script_path" > "$log_file" 2>&1 &
     echo $! > "$pid_file"
@@ -63,23 +73,20 @@ auto_interaction_v2() {
     echo "Process ID (PID): $(cat $pid_file)"
 }
 
+# Function to exit the script
+exit_script() {
+    echo "Exiting GaiaNet Node Management Script..."
+    exit 0
+}
+
 # Main loop
 while true; do
     show_menu
     read -p "Enter your choice [1-12]: " choice
     case $choice in
         1) install_node ;;
-        2) initialize_default_model ;;
-        3) initialize_qwen_model ;;
-        4) initialize_phi_model ;;
-        5) start_node ;;
-        6) stop_node ;;
-        7) uninstall_node ;;
-        8) auto_interaction_v1 ;;
         9) auto_interaction_v2 ;;
-        10) stop_interaction ;;
-        11) check_node_info ;;
-        12) echo "Exiting..."; exit 0 ;;
+        12) exit_script ;;
         *) echo "Invalid choice. Please select a number between 1 and 12." ;;
     esac
     echo ""
