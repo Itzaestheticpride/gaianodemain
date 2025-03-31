@@ -3,9 +3,9 @@
 # Function to display the main menu
 show_menu() {
     curl -s https://raw.githubusercontent.com/CryptonodesHindi/CryptoNodeHindi/refs/heads/main/CNH-Privatelogo.sh | bash
-    echo "=============================="
+    echo 
     echo " GaiaNet Node Management Menu "
-    echo "=============================="
+    echo 
     echo "1. Install GaiaNet Node"
     echo "2. Initialize Model Default [Llama Model]"
     echo "3. Initialize Model Qwen 2.5"
