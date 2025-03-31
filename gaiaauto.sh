@@ -28,16 +28,15 @@ case $choice in
 
         echo "Downloading necessary files for $node_name..."
         
-        # Example download (Modify these with actual URLs)
-        wget -O "$node_path/main.py" "https://github.com/Itzaestheticpride/gaianodemain/raw/main/main.py"
-        wget -O "$node_path/required_file_1.py" "https://github.com/Itzaestheticpride/gaianodemain/raw/main/required_file_1.py"
+        # Ensure the necessary files are downloaded from your GitHub repo
+        wget -O "$node_path/main.py" "https://raw.githubusercontent.com/Itzaestheticpride/gaianodemain/main/main.py"
+        wget -O "$node_path/gaiaauto.sh" "https://raw.githubusercontent.com/Itzaestheticpride/gaianodemain/main/gaiaauto.sh"
 
-        # Move files if needed
-        mv main.py "$node_path/"
-        
+        # Move files if needed (Not required here since wget downloads directly to the correct location)
+
         echo "Setting permissions..."
         chmod +x "$node_path/main.py"
-        
+
         echo "Running main.py and logging output..."
         python3 "$node_path/main.py" | tee "$node_path/interaction_v1.log"
         ;;
