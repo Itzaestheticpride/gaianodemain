@@ -2,11 +2,21 @@
 
 # Function to display the main menu
 show_menu() {
+    curl -s https://raw.githubusercontent.com/CryptonodesHindi/CryptoNodeHindi/refs/heads/main/CNH-Privatelogo.sh | bash
     echo "=============================="
     echo " GaiaNet Node Management Menu "
     echo "=============================="
     echo "1. Install GaiaNet Node"
+    echo "2. Initialize Model Default [Llama Model]"
+    echo "3. Initialize Model Qwen 2.5"
+    echo "4. Initialize Model Phi 3.5 Mini"
+    echo "5. Start Node"
+    echo "6. Stop Node"
+    echo "7. Uninstall GaiaNet Node"
+    echo "8. Auto Interaction with Your Node [V1]"
     echo "9. Auto Interaction with Your Node [V2]"
+    echo "10. Stop Interaction"
+    echo "11. Check Node ID and Device ID"
     echo "12. Exit"
     echo "=============================="
 }
@@ -43,6 +53,12 @@ auto_interaction_v2() {
 
     cd "$repo_dir"
 
+    # Ensure .env file exists
+    if [ ! -f "$repo_dir/.env" ]; then
+        echo "Warning: .env file not found. Creating a blank .env file..."
+        touch "$repo_dir/.env"
+    fi
+
     # Ensure requirements.txt exists
     if [ ! -f "$repo_dir/requirements.txt" ]; then
         echo "Error: requirements.txt not found in $repo_dir"
@@ -78,12 +94,12 @@ exit_script() {
 # Main loop
 while true; do
     show_menu
-    read -p "Enter your choice [1, 9, 12]: " choice
+    read -p "Enter your choice [1-12]: " choice
     case $choice in
         1) install_node ;;
         9) auto_interaction_v2 ;;
         12) exit_script ;;
-        *) echo "Invalid choice. Please select a number between 1, 9, and 12." ;;
+        *) echo "Invalid choice. Please select a number between 1 and 12." ;;
     esac
     echo ""
 done
