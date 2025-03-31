@@ -21,38 +21,39 @@ show_menu() {
     echo "=============================="
 }
 
-# Function for Auto Interaction with Your Node [V2]
+# Function to run Auto Interaction V2 with node selection
 auto_interaction_v2() {
     echo "Which node do you want to run? (e.g., node2, node3)"
     read -p "Enter node name: " node_name
-    
-    local script_path="/root/gaianode/$node_name/main.py"
-    local log_file="/root/gaianode/$node_name/interaction_v2.log"
-    local pid_file="/root/gaianode/$node_name/interaction_v2.pid"
+    local node_dir="/root/gaianode/$node_name"
+    local script_path="$node_dir/main.py"
+    local log_file="$node_dir/interaction_v2.log"
+    local pid_file="$node_dir/interaction_v2.pid"
+    local req_file="$node_dir/requirements.txt"
 
     if [ ! -f "$script_path" ]; then
         echo "Error: Python script not found at $script_path"
         return
     fi
 
-    # Ensure a virtual environment exists
-    if [ ! -d "/root/gaianode/$node_name/env" ]; then
-        echo "Creating Python virtual environment..."
-        python3 -m venv "/root/gaianode/$node_name/env"
+    # Ensure requirements.txt exists in node directory, otherwise copy it
+    if [ ! -f "$req_file" ]; then
+        echo "Warning: requirements.txt not found in $node_dir. Checking in main repo..."
+        if [ -f "$HOME/gaianodemain/requirements.txt" ]; then
+            cp "$HOME/gaianodemain/requirements.txt" "$req_file"
+            echo "Copied missing requirements.txt to $node_dir."
+        else
+            echo "Error: requirements.txt not found in main repo. Skipping dependency installation."
+        fi
     fi
 
-    # Activate the virtual environment
-    source "/root/gaianode/$node_name/env/bin/activate"
-
-    # Install required Python dependencies
-    if [ -f "/root/gaianode/$node_name/requirements.txt" ]; then
+    # Install dependencies
+    if [ -f "$req_file" ]; then
         echo "Installing required Python packages..."
-        pip install -r "/root/gaianode/$node_name/requirements.txt"
-    else
-        echo "Warning: requirements.txt not found in /root/gaianode/$node_name/. Skipping dependency installation."
+        pip install -r "$req_file" --break-system-packages
     fi
 
-    # Use nohup to run the Python script in the background
+    # Start script
     echo "Starting the Python script with nohup..."
     nohup python3 "$script_path" > "$log_file" 2>&1 &
     echo $! > "$pid_file"
@@ -67,8 +68,19 @@ while true; do
     show_menu
     read -p "Enter your choice [1-12]: " choice
     case $choice in
-        9) auto_interaction_v2 ;; 
-        *) echo "No changes to other options." ;;
+        1) install_node ;;
+        2) initialize_default_model ;;
+        3) initialize_qwen_model ;;
+        4) initialize_phi_model ;;
+        5) start_node ;;
+        6) stop_node ;;
+        7) uninstall_node ;;
+        8) auto_interaction_v1 ;;
+        9) auto_interaction_v2 ;;
+        10) stop_interaction ;;
+        11) check_node_info ;;
+        12) echo "Exiting..."; exit 0 ;;
+        *) echo "Invalid choice. Please select a number between 1 and 12." ;;
     esac
     echo ""
 done
