@@ -1,37 +1,48 @@
-#!/bin/bash
+auto_interaction_v2() {
+    echo "Starting Auto Interaction with Your Node [V2]..."
 
-echo "Enter node name (e.g., main, node2, node3, node6):"
-read NODE_NAME
+    # Prompt user for the node name
+    read -p "Enter the node name (e.g., node2): " node_name
+    if [ -z "$node_name" ]; then
+        echo "Node name cannot be empty. Aborting."
+        return
+    fi
 
-NODE_DIR="/root/gaianode/$NODE_NAME"
+    # Define paths based on the node name
+    local node_dir="/root/gaianode/$node_name"
+    local script_path="$node_dir/main.py"
+    local log_file="$node_dir/interaction_v2.log"
+    local pid_file="$node_dir/interaction_v2.pid"
 
-echo "Downloading necessary files for $NODE_NAME..."
-mkdir -p "$NODE_DIR"
+    # Check if the script exists
+    if [ ! -f "$script_path" ]; then
+        echo "Error: Python script not found at $script_path"
+        return
+    fi
 
-wget -O "$NODE_DIR/main.py" "https://raw.githubusercontent.com/Itzaestheticpride/gaianodemain/main/main.py"
-wget -O "$NODE_DIR/gaiaauto.sh" "https://raw.githubusercontent.com/Itzaestheticpride/gaianodemain/main/gaiaauto.sh"
+    # Ensure a virtual environment exists
+    if [ ! -d "$node_dir/env" ]; then
+        echo "Creating Python virtual environment..."
+        python3 -m venv "$node_dir/env"
+    fi
 
-echo "Setting permissions..."
-chmod +x "$NODE_DIR/main.py"
-chmod +x "$NODE_DIR/gaiaauto.sh"
+    # Activate the virtual environment
+    source "$node_dir/env/bin/activate"
 
-# Ensure pip3 is installed
-if ! command -v pip3 &> /dev/null; then
-    echo "pip3 not found. Installing..."
-    apt update && apt install -y python3-pip
-fi
+    # Install required Python packages
+    if [ -f "$node_dir/requirements.txt" ]; then
+        echo "Installing required Python packages..."
+        pip install -r "$node_dir/requirements.txt"
+    else
+        echo "Warning: requirements.txt not found in $node_dir. Proceeding without installing additional packages."
+    fi
 
-# Install required Python dependencies
-if [ -f "$NODE_DIR/requirements.txt" ]; then
-    echo "Installing Python dependencies..."
-    pip3 install -r "$NODE_DIR/requirements.txt"
-else
-    echo "No requirements.txt found. Installing dotenv manually..."
-    pip3 install python-dotenv
-fi
+    # Start the Python script with nohup
+    echo "Starting the Python script with nohup..."
+    nohup python3 "$script_path" > "$log_file" 2>&1 &
+    echo $! > "$pid_file"
 
-echo "Running main.py and logging output..."
-python3 "$NODE_DIR/main.py" &> "$NODE_DIR/node.log" &
-
-echo "Displaying live log output..."
-tail -f "$NODE_DIR/node.log"
+    echo "Auto Interaction V2 started for $node_name in the background."
+    echo "Logs are being saved to $log_file."
+    echo "Process ID (PID): $(cat $pid_file)"
+}
