@@ -14,7 +14,7 @@ show_menu() {
     echo "6. Stop Node"
     echo "7. Uninstall GaiaNet Node"
     echo "8. Auto Interaction with Your Node [V1]"
-    echo "9. Auto Interaction with Your Node [V2] (Select Node)"
+    echo "9. Auto Interaction with Your Node [V2]"
     echo "10. Stop Interaction"
     echo "11. Check Node ID and Device ID"
     echo "12. Exit"
@@ -23,8 +23,9 @@ show_menu() {
 
 # Function for Auto Interaction with Your Node [V2]
 auto_interaction_v2() {
-    echo "Select the node to run Auto Interaction V2 (e.g., node2, node3, etc.):"
+    echo "Which node do you want to run? (e.g., node2, node3)"
     read -p "Enter node name: " node_name
+    
     local script_path="/root/gaianode/$node_name/main.py"
     local log_file="/root/gaianode/$node_name/interaction_v2.log"
     local pid_file="/root/gaianode/$node_name/interaction_v2.pid"
@@ -44,8 +45,12 @@ auto_interaction_v2() {
     source "/root/gaianode/$node_name/env/bin/activate"
 
     # Install required Python dependencies
-    echo "Installing required Python packages..."
-    pip install -r "/root/gaianode/$node_name/requirements.txt"
+    if [ -f "/root/gaianode/$node_name/requirements.txt" ]; then
+        echo "Installing required Python packages..."
+        pip install -r "/root/gaianode/$node_name/requirements.txt"
+    else
+        echo "Warning: requirements.txt not found in /root/gaianode/$node_name/. Skipping dependency installation."
+    fi
 
     # Use nohup to run the Python script in the background
     echo "Starting the Python script with nohup..."
@@ -62,19 +67,8 @@ while true; do
     show_menu
     read -p "Enter your choice [1-12]: " choice
     case $choice in
-        1) install_node ;;
-        2) initialize_default_model ;;
-        3) initialize_qwen_model ;;
-        4) initialize_phi_model ;;
-        5) start_node ;;
-        6) stop_node ;;
-        7) uninstall_node ;;
-        8) auto_interaction_v1 ;;
-        9) auto_interaction_v2 ;;
-        10) stop_interaction ;;
-        11) check_node_info ;;
-        12) echo "Exiting..."; exit 0 ;;
-        *) echo "Invalid choice. Please select a number between 1 and 12." ;;
+        9) auto_interaction_v2 ;; 
+        *) echo "No changes to other options." ;;
     esac
     echo ""
 done
