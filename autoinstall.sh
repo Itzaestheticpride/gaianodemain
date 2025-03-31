@@ -137,11 +137,11 @@ auto_interaction_v2() {
     fi
 
     # Activate the virtual environment
-    source "root/autochatmine/env/bin/activate"
+    source "/root/autochatmine/env/bin/activate"
 
     echo "Installing dependencies..."
-    pip install --upgrade pip
-    pip install -r "$repo_dir/requirements.txt"
+    /root/autochatmine/env/bin/pip install --upgrade pip
+/root/autochatmine/env/bin/pip install -r requirements.txt
     pip install python-dotenv
     deactivate
 
