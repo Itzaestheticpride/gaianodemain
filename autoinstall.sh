@@ -137,7 +137,7 @@ auto_interaction_v2() {
     fi
 
     # Activate the virtual environment
-    source "$node_dir/env/bin/activate"
+    source "root/autochatmine/env/bin/activate"
 
     echo "Installing dependencies..."
     pip install --upgrade pip
