@@ -36,7 +36,7 @@ auto_interaction_v2() {
     log_file="$node_dir/interaction_v2.log"
     pid_file="$node_dir/interaction_v2.pid"
     script_path="$node_dir/main.py"
-    repo_requirements="/root/autochatmine/6/CNH-Gaianetnode/gaianodemain/requirements.txt"
+    repo_dir="/root/autochatmine/6/CNH-Gaianetnode/gaianodemain"
 
     if [ ! -d "$node_dir" ]; then
         echo "Error: Node directory $node_dir does not exist."
@@ -50,14 +50,23 @@ auto_interaction_v2() {
 
     # Ensure requirements.txt is copied if missing
     if [ ! -f "$node_dir/requirements.txt" ]; then
-        if [ -f "$repo_requirements" ]; then
-            echo "Copying requirements.txt from repository..."
-            cp "$repo_requirements" "$node_dir/"
-        else
-            echo "Error: requirements.txt not found in repository at $repo_requirements"
-            return
-        fi
+        echo "Copying requirements.txt to $node_dir..."
+        cp "$repo_dir/requirements.txt" "$node_dir/"
     fi
+
+    # Ensure .env file is copied if missing
+    if [ ! -f "$node_dir/.env" ]; then
+        echo "Copying .env to $node_dir..."
+        cp "$repo_dir/.env" "$node_dir/"
+    fi
+
+    # Ensure all required files are copied
+    for file in config.json data.json; do
+        if [ ! -f "$node_dir/$file" ]; then
+            echo "Copying missing file: $file to $node_dir..."
+            cp "$repo_dir/$file" "$node_dir/"
+        fi
+    done
 
     # Activate virtual environment or create if missing
     if [ ! -d "$node_dir/env" ]; then
