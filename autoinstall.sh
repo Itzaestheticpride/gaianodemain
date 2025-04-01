@@ -144,11 +144,25 @@ else
 if [ ! -d "/root/autochatmine/env" ]; then
     python3 -m venv /root/autochatmine/env
 fi
-source /root/autochatmine/env/bin/activate
+if [ ! -d "/root/autochatmine/env" ]; then
+    python3 -m venv /root/autochatmine/env || python3 -m virtualenv /root/autochatmine/env
+fi
+
+if [ -f "/root/autochatmine/env/bin/activate" ]; then
+    source /root/autochatmine/env/bin/activate
+else
+    echo "❌ Virtual environment activation failed!"
+    exit 1
+fi
 
 
     echo "Installing dependencies..."
     if [ ! -f "/root/autochatmine/env/bin/pip" ]; then
+    /root/autochatmine/env/bin/python -m ensurepip --default-pip
+fi
+pip install --upgrade pip
+if [ ! -f "/root/autochatmine/env/bin/pip" ]; then
+    python3 -m ensurepip --default-pip || apt-get install -y python3-venv python3-pip
     /root/autochatmine/env/bin/python -m ensurepip --default-pip
 fi
 pip install --upgrade pip
@@ -160,7 +174,10 @@ pip install --upgrade pip
 pip install -r requirements.txt
     pip install python-dotenv
     if [ -n "$VIRTUAL_ENV" ]; then
+if [ -n "$VIRTUAL_ENV" ]; then
     deactivate
+fi
+
 fi
 # Deactivate the virtual environment if it's active
 if [ -n "$VIRTUAL_ENV" ]; then
