@@ -137,6 +137,11 @@ auto_interaction_v2() {
     fi
 
     # Activate the virtual environment
+if [ ! -d "/root/autochatmine/env/" ]; then
+    echo "Creating Python virtual environment..."
+    python3 -m venv /root/autochatmine/env/
+fi
+source /root/autochatmine/env/bin/activate
     source "/root/autochatmine/env/bin/activate"
 
     echo "Installing dependencies..."
