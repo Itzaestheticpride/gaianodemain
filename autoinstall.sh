@@ -139,7 +139,21 @@ auto_interaction_v2() {
         echo "Creating Python virtual environment..."
         python3 -m venv "$node_dir/env"
     fi
+# Ensure the virtual environment exists before activating it
+VENV_DIR="/root/autochatmine/env"
 
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Creating Python virtual environment..."
+    python3 -m venv "$VENV_DIR"
+fi
+
+# Check if the activation script exists before sourcing it
+if [ -f "$VENV_DIR/bin/activate" ]; then
+    source "$VENV_DIR/bin/activate"
+else
+    echo "❌ Virtual environment activation failed! Ensure venv is installed."
+    exit 1
+fi
     # Activate the virtual environment
     source "$node_dir/env/bin/activate"
 
