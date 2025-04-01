@@ -146,7 +146,12 @@ auto_interaction_v2() {
     # Ensure pip is available
     "$VENV_DIR/bin/python" -m ensurepip --upgrade
 
-    # Install dependencies
+   # Check if requirements.txt exists, if not, generate it
+if [ ! -f "requirements.txt" ]; then
+    echo "requirements.txt not found, generating it..."
+    pip freeze > requirements.txt
+fi
+# Install dependencies
     echo "Installing dependencies..."
     pip install --upgrade pip
     pip install -r "$repo_dir/requirements.txt"
@@ -167,7 +172,7 @@ auto_interaction_v2() {
     # Ensure requirements.txt exists
     if [ ! -f "$repo_dir/requirements.txt" ]; then
         echo "Error: requirements.txt not found in $repo_dir"
-        return
+        exit 1
     fi
 
     # Create a single virtual environment in autochatmine/
