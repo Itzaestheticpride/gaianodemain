@@ -132,7 +132,12 @@ auto_interaction_v2() {
         git reset --hard
         git pull
     fi
-
+# Line 147
+# Before creating the virtual environment, ensure that python3-venv is installed:
+if ! dpkg -l | grep -q python3-venv; then
+    echo "python3-venv not found. Installing..."
+    sudo apt-get install python3-venv
+fi
     # Ensure the virtual environment exists
     VENV_DIR="$node_dir/env"
     if [ ! -d "$VENV_DIR" ]; then
