@@ -88,7 +88,7 @@ auto_interaction_v1() {
 
     if [ ! -f "$script_path" ]; then
         echo "Error: Node.js script not found at $script_path"
-        return
+        exit 1
     fi
     npm install
     node "$script_path" > "$log_file" 2>&1 &
