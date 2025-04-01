@@ -160,7 +160,7 @@ auto_interaction_v2() {
     echo "Logs are being saved to $log_file."
     echo "Process ID (PID): $(cat $pid_file)"
 }
-    fi
+    
 
     cd "$repo_dir"
 
