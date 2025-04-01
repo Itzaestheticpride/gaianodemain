@@ -101,13 +101,14 @@ auto_interaction_v1() {
 
 # Function for Auto Interaction with Your Node [V2]
 auto_interaction_v2() {
-    echo "Which node do you want to run? (e.g., node6, node7)"
+    echo "Which node do you want to run? (e.g., node1, node2)"
     read -p "Enter node name: " node_name
-    foldername="${node_name//[^0-9]/}"  # Extract number from node name (e.g., node6 -> 6)
+    foldername="${node_name//[^0-9]/}"  # Extract number from node name (e.g., node1 -> 1)
     node_dir="/root/autochatmine/"
     repo_dir="$node_dir/gaianodemain"
-    log_file="/root/interaction${foldername}_v2.log"
-    pid_file="$node_dir/interaction_v2.pid"
+    
+    log_file="$node_dir/interaction_${node_name}_v2.log"
+    pid_file="$node_dir/interaction_${node_name}_v2.pid"
 
     if [ ! -d "$node_dir" ]; then
         echo "Creating autochatmine directory: $node_dir"
@@ -132,114 +133,22 @@ auto_interaction_v2() {
         git reset --hard
         git pull
     fi
-# Line 147
-# Before creating the virtual environment, ensure that python3-venv is installed:
-if ! dpkg -l | grep -q python3-venv; then
-    echo "python3-venv not found. Installing..."
-    sudo apt-get install python3-venv
-fi
-    # Ensure the virtual environment exists
-    VENV_DIR="$node_dir/env"
-    if [ ! -d "$VENV_DIR" ]; then
-        echo "Creating Python virtual environment..."
-        python3 -m venv "$VENV_DIR"
-    fi
-# Ensure the virtual environment exists
-VENV_DIR="$node_dir/env"
-if [ ! -d "$VENV_DIR" ]; then
-    echo "Creating Python virtual environment..."
-    python3 -m venv "$VENV_DIR"
-fi
 
-# Activate the virtual environment
-source "$VENV_DIR/bin/activate"
-    # Activate the virtual environment
-    source "$VENV_DIR/bin/activate"
-
-    # Ensure pip is available
-    "$VENV_DIR/bin/python" -m ensurepip --upgrade
-
-   # Check if requirements.txt exists, if not, generate it
-if [ ! -f "requirements.txt" ]; then
-    echo "requirements.txt not found, generating it..."
-    pip freeze > requirements.txt
-fi
-# Install dependencies
-    echo "Installing dependencies..."
-    pip install --upgrade pip
-    pip install -r "$repo_dir/requirements.txt"
-
-    # Run the Python script with nohup
-    echo "Starting the Python script with nohup..."
-    nohup python3 "$repo_dir/main.py" > "$log_file" 2>&1 &
-    echo $! > "$pid_file"
-
-    echo "Auto Interaction V2 started for $node_name in the background."
-    echo "Logs are being saved to $log_file."
-    echo "Process ID (PID): $(cat $pid_file)"
-}
-    
-
-    cd "$repo_dir"
-
-    # Ensure requirements.txt exists
-    if [ ! -f "$repo_dir/requirements.txt" ]; then
-        echo "Error: requirements.txt not found in $repo_dir"
-        exit 1
-    fi
-
-    # Create a single virtual environment in autochatmine/
+    # Ensure Python virtual environment is set up
     if [ ! -d "$node_dir/env" ]; then
         echo "Creating Python virtual environment..."
         python3 -m venv "$node_dir/env"
     fi
 
     # Activate the virtual environment
-if [ ! -d "/root/autochatmine/env" ]; then
-    python3 -m venv /root/autochatmine/env
-fi
-if [ ! -d "/root/autochatmine/env" ]; then
-    python3 -m venv /root/autochatmine/env || python3 -m virtualenv /root/autochatmine/env
-fi
+    source "$node_dir/env/bin/activate"
 
-if [ -f "/root/autochatmine/env/bin/activate" ]; then
-    source /root/autochatmine/env/bin/activate
-else
-    echo "❌ Virtual environment activation failed!"
-    exit 1
-fi
+    # Ensure pip is available and install dependencies
+    pip install --upgrade pip
+    pip install -r "$repo_dir/requirements.txt"
 
-
-    echo "Installing dependencies..."
-    if [ ! -f "/root/autochatmine/env/bin/pip" ]; then
-    /root/autochatmine/env/bin/python -m ensurepip --default-pip
-fi
-pip install --upgrade pip
-if [ ! -f "/root/autochatmine/env/bin/pip" ]; then
-    python3 -m ensurepip --default-pip || apt-get install -y python3-venv python3-pip
-    /root/autochatmine/env/bin/python -m ensurepip --default-pip
-fi
-pip install --upgrade pip
-pip install -r requirements.txt
-# Upgrade pip inside the virtual environment
-pip install --upgrade pip
-
-# Install required dependencies
-pip install -r requirements.txt
-    pip install python-dotenv
-    if [ -n "$VIRTUAL_ENV" ]; then
-if [ -n "$VIRTUAL_ENV" ]; then
-    deactivate
-fi
-
-fi
-# Deactivate the virtual environment if it's active
-if [ -n "$VIRTUAL_ENV" ]; then
-    deactivate
-fi
-
-
-    echo "Starting the Python script with nohup..."
+    # Run the Python script with nohup, separate log for each node
+    echo "Starting the Python script for $node_name with nohup..."
     nohup python3 "$repo_dir/main.py" > "$log_file" 2>&1 &
     echo $! > "$pid_file"
 
@@ -248,11 +157,9 @@ fi
     echo "Process ID (PID): $(cat $pid_file)"
 }
 
-
-# Function to stop any interaction
 # Function to stop any interaction
 stop_interaction() {
-    local pid_files=("$HOME/interaction_v1.pid" "$HOME/interaction_v2.pid")  # Check both V1 and V2 PID files
+    local pid_files=("$HOME/interaction_v1.pid" "$HOME/interaction_${node_name}_v2.pid")  # Check both V1 and V2 PID files
     local interaction_stopped=false
 
     for pid_file in "${pid_files[@]}"; do
@@ -274,7 +181,6 @@ stop_interaction() {
         echo "No PID file found. No interaction processes are running."
     fi
 }
-
 
 # Function to check Node ID and Device ID
 check_node_info() {
