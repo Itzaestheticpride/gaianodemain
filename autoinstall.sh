@@ -141,25 +141,27 @@ else
     fi
 
     # Activate the virtual environment
-source /root/autochatmine/env/bin/activate
-# Ensure the virtual environment exists before activating
 if [ ! -d "/root/autochatmine/env" ]; then
-    echo "Creating Python virtual environment..."
     python3 -m venv /root/autochatmine/env
 fi
-
-# Activate the virtual environment
 source /root/autochatmine/env/bin/activate
 
+
     echo "Installing dependencies..."
-    pip install -r requirements.txt
+    if [ ! -f "/root/autochatmine/env/bin/pip" ]; then
+    /root/autochatmine/env/bin/python -m ensurepip --default-pip
+fi
+pip install --upgrade pip
+pip install -r requirements.txt
 # Upgrade pip inside the virtual environment
 pip install --upgrade pip
 
 # Install required dependencies
 pip install -r requirements.txt
     pip install python-dotenv
+    if [ -n "$VIRTUAL_ENV" ]; then
     deactivate
+fi
 # Deactivate the virtual environment if it's active
 if [ -n "$VIRTUAL_ENV" ]; then
     deactivate
