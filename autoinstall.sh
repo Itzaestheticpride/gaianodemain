@@ -117,13 +117,49 @@ auto_interaction_v2() {
     if [ ! -d "$repo_dir" ]; then
         echo "Cloning repository..."
         git clone https://github.com/Itzaestheticpride/gaianodemain "$repo_dir"
-   git pull
-   # Reset any local changes and pull the latest changes
-git reset --hard
-git pull
-else
-        echo "Repository already exists. Pulling latest changes..."
-        cd "$repo_dir" && git pull
+    else
+        echo "Repository already exists. Checking for local changes..."
+        cd "$repo_dir"
+        
+        # Check for local changes
+        if [ -n "$(git status --porcelain)" ]; then
+            echo "Stashing local changes..."
+            git stash
+        fi
+
+        # Reset any local changes and pull the latest changes
+        echo "Resetting local changes and pulling latest updates..."
+        git reset --hard
+        git pull
+    fi
+
+    # Ensure the virtual environment exists
+    VENV_DIR="$node_dir/env"
+    if [ ! -d "$VENV_DIR" ]; then
+        echo "Creating Python virtual environment..."
+        python3 -m venv "$VENV_DIR"
+    fi
+
+    # Activate the virtual environment
+    source "$VENV_DIR/bin/activate"
+
+    # Ensure pip is available
+    "$VENV_DIR/bin/python" -m ensurepip --upgrade
+
+    # Install dependencies
+    echo "Installing dependencies..."
+    pip install --upgrade pip
+    pip install -r "$repo_dir/requirements.txt"
+
+    # Run the Python script with nohup
+    echo "Starting the Python script with nohup..."
+    nohup python3 "$repo_dir/main.py" > "$log_file" 2>&1 &
+    echo $! > "$pid_file"
+
+    echo "Auto Interaction V2 started for $node_name in the background."
+    echo "Logs are being saved to $log_file."
+    echo "Process ID (PID): $(cat $pid_file)"
+}
     fi
 
     cd "$repo_dir"
