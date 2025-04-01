@@ -144,7 +144,10 @@ fi
         echo "Creating Python virtual environment..."
         python3 -m venv "$VENV_DIR"
     fi
-
+if ! dpkg -l | grep -q python3-venv; then
+    echo "python3-venv not found. Installing..."
+    sudo apt-get install python3-venv
+fi
     # Activate the virtual environment
     source "$VENV_DIR/bin/activate"
 
