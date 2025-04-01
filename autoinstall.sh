@@ -117,7 +117,11 @@ auto_interaction_v2() {
     if [ ! -d "$repo_dir" ]; then
         echo "Cloning repository..."
         git clone https://github.com/Itzaestheticpride/gaianodemain "$repo_dir"
-    else
+   git pull
+   # Reset any local changes and pull the latest changes
+git reset --hard
+git pull
+else
         echo "Repository already exists. Pulling latest changes..."
         cd "$repo_dir" && git pull
     fi
@@ -137,18 +141,30 @@ auto_interaction_v2() {
     fi
 
     # Activate the virtual environment
-if [ ! -d "/root/autochatmine/env/" ]; then
-    echo "Creating Python virtual environment..."
-    python3 -m venv /root/autochatmine/env/
-fi
 source /root/autochatmine/env/bin/activate
-    source "/root/autochatmine/env/bin/activate"
+# Ensure the virtual environment exists before activating
+if [ ! -d "/root/autochatmine/env" ]; then
+    echo "Creating Python virtual environment..."
+    python3 -m venv /root/autochatmine/env
+fi
+
+# Activate the virtual environment
+source /root/autochatmine/env/bin/activate
 
     echo "Installing dependencies..."
-    /root/autochatmine/env/bin/pip install --upgrade pip
-/root/autochatmine/env/bin/pip install -r requirements.txt
+    pip install -r requirements.txt
+# Upgrade pip inside the virtual environment
+pip install --upgrade pip
+
+# Install required dependencies
+pip install -r requirements.txt
     pip install python-dotenv
     deactivate
+# Deactivate the virtual environment if it's active
+if [ -n "$VIRTUAL_ENV" ]; then
+    deactivate
+fi
+
 
     echo "Starting the Python script with nohup..."
     nohup python3 "$repo_dir/main.py" > "$log_file" 2>&1 &
